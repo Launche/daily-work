@@ -2,14 +2,17 @@
  Address: https://leetcode-cn.com/problems/add-two-numbers/
  Thinking: 1.链表形式表达没想明白。 猜测本题的关键点可能在满10进1上。涉及到链表的操作(访问和修改)
            remark.看完题目解析，明白ListNode即是结点，通过next 访问下一结点。重要的是，我们一开始并不需要知道所有元素，只要头结点就可以代表整条链表，同时双链表相加要考虑链表长度问题。
+           想到递归生成，有两种方式，一种是已经想到的，ListNode(,ListNode) 构造结构时候，这个用while，同时要反序输出，借助cur。 另一种是 addTowNumbers 递归
  Test:
  Review:
     链表:
         单链表，双链表，循环链表，指针，头结点 ，头插，尾插
 """
 
-
 # Definition for singly-linked list.
+import math
+
+
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
@@ -18,21 +21,39 @@ class ListNode:
 
 class Solution:
     def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
-        if l1:
-            l1.val
+        carry = 0
+        cur = ListNode()
+        head = cur
+        while l1 or l2 or carry:
+            n1, n2 = 0, 0
+            if l1:
+                n1 = l1.val
+                l1 = l1.next
+            if l2:
+                n2 = l2.val
+                l2 = l2.next
+            cur.next = ListNode((n1 + n2 + carry) % 10)
+            cur = cur.next
+            carry = math.floor((n1 + n2 + carry) / 10)
+            print(n1 + n2 + carry)
+        return head.next
 
-"""
-Reference:
-    solution: 由于输入的两个链表都是逆序存储数字的位数的，因此两个链表中同一位置的数字可以直接相加。
-              我们同时遍历两个链表，逐位计算它们的和，并与当前位置的进位值相加。
-              具体而言，如果当前两个链表处相应位置的数字为 n1,n2，进位值为 carry，则它们的和为 n1+n2+carry；
-              其中，答案链表处相应位置的数字为(n1+n2+carry)%10，而新的进位值为⌊(n1+n2+carry)/10⌋,
-              如果两个链表的长度不同，则可以认为长度短的链表的后面有若干个 0。
-              此外，如果链表遍历结束后，有 carry>0，还需要在答案链表的后面附加一个节点，节点的值为 carry。
-"""
 
-
-
+class Solution2:
+    def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
+        if l1 is None and l2 is None:
+            return None
+        if l1 is None:
+            l1 = ListNode(0, None)
+        if l2 is None:
+            l2 = ListNode(0, None)
+        if l1.val + l2.val > 9:
+            node = l1.next if l1.next else l2.next
+            if node:
+                node.val = node.val + 1
+            else:
+                l1.next = ListNode(1, None)
+        return ListNode((l1.val + l2.val) % 10, self.addTwoNumbers(l1.next, l2.next))
 
 
 s = Solution()
